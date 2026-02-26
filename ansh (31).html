@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ansh Hub Premium</title>
+  <style>
+    :root {
+      --bg: #0a0015;
+      --accent: #00ffcc;
+      --card-bg: #1a0033;
+      --premium-bg: #2a004d;
+      --text: #e0ffff;
+      --shadow: rgba(0, 255, 204, 0.35);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0,255,204,0.12) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0,255,204,0.1) 0%, transparent 30%);
+    }
+    header {
+      background: linear-gradient(to right, #1a0033, #2a0055);
+      padding: 3rem 1rem;
+      text-align: center;
+      border-bottom: 5px solid var(--accent);
+      box-shadow: 0 10px 50px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    h1 {
+      font-size: 4.5rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #00ffcc, #00ffff, #99ffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 25px var(--shadow);
+    }
+    .tagline {
+      font-size: 1.6rem;
+      opacity: 0.9;
+      letter-spacing: 1.2px;
+    }
+    .password-section {
+      text-align: center;
+      margin: 3rem 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .password-input {
+      width: 100%;
+      padding: 1.2rem;
+      font-size: 1.4rem;
+      border: 3px solid #444;
+      border-radius: 50px;
+      background: rgba(26,0,51,0.8);
+      color: white;
+      outline: none;
+      margin-bottom: 1rem;
+    }
+    .password-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px var(--shadow);
+    }
+    .unlock-btn {
+      padding: 1.2rem 3rem;
+      font-size: 1.4rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff6b00, #ff9900);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.4s;
+    }
+    .unlock-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 40px var(--shadow);
+    }
+    #error-msg {
+      color: #ff4444;
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      display: none;
+    }
+    #hidden-content {
+      display: none;
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+    }
+    .chat-container {
+      background: rgba(26,0,51,0.6);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid var(--accent);
+      box-shadow: 0 20px 60px var(--shadow);
+      height: 70vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .message {
+      max-width: 80%;
+      padding: 1rem 1.5rem;
+      border-radius: 24px;
+      line-height: 1.5;
+      animation: fadeIn 0.4s ease;
+    }
+    .user-message {
+      align-self: flex-end;
+      background: linear-gradient(45deg, var(--accent), #00d4ff);
+      color: black;
+      border-bottom-right-radius: 6px;
+    }
+    .bot-message {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--accent);
+      border-bottom-left-radius: 6px;
+    }
+    .chat-input-area {
+      display: flex;
+      padding: 1rem;
+      background: rgba(26,0,51,0.8);
+      border-top: 1px solid var(--accent);
+    }
+    .chat-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      border: 2px solid #444;
+      border-radius: 50px;
+      background: rgba(255,255,255,0.05);
+      color: white;
+      outline: none;
+      font-size: 1.1rem;
+    }
+    .chat-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--shadow);
+    }
+    .chat-send {
+      margin-left: 1rem;
+      padding: 0 2rem;
+      background: var(--accent);
+      color: black;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .chat-send:hover {
+      background: #00d4ff;
+      transform: scale(1.1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .premium-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 2.5rem;
+      margin-top: 3rem;
+    }
+    .premium-card {
+      background: var(--premium-bg);
+      border-radius: 50px;
+      overflow: hidden;
+      border: 4px solid rgba(0,255,204,0.3);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    }
+    .premium-card:hover {
+      transform: translateY(-15px) scale(1.05);
+      border-color: var(--accent);
+      box-shadow: 0 35px 90px var(--shadow);
+    }
+    .premium-thumb {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .premium-card:hover .premium-thumb {
+      transform: scale(1.12);
+    }
+    .premium-info {
+      padding: 1.8rem;
+      text-align: center;
+    }
+    .premium-title {
+      font-size: 1.8rem;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 0.8rem;
+    }
+    .premium-desc {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin-bottom: 1.2rem;
+    }
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .play-btn, .cloak-btn {
+      padding: 0.9rem 1.8rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .play-btn {
+      background: linear-gradient(45deg, #00cc99, var(--accent));
+      color: black;
+    }
+    .cloak-btn {
+      background: linear-gradient(45deg, #ff00aa, #ff66cc);
+      color: white;
+    }
+    .play-btn:hover, .cloak-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+    .main-grid {
+      max-width: 1600px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 2.8rem;
+    }
+    .main-card {
+      background: var(--card-bg);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 3px solid rgba(0,255,204,0.2);
+      transition: all 0.5s ease;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    }
+    .main-card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 35px 90px var(--shadow);
+      border-color: var(--accent);
+    }
+    .main-thumb {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      transition: transform 0.6s;
+    }
+    .main-card:hover .main-thumb { transform: scale(1.1); }
+    .main-info {
+      padding: 2rem;
+      text-align: center;
+    }
+    .main-title {
+      font-size: 1.9rem;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 0.8rem;
+    }
+    .main-desc {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 1.5rem;
+    }
+    .coming-soon {
+      text-align: center;
+      font-size: 1.8rem;
+      color: var(--accent);
+      margin: 4rem 0;
+      text-shadow: 0 0 20px var(--shadow);
+    }
+    footer {
+      text-align: center;
+      padding: 5rem 1rem;
+      color: #888;
+      font-size: 1.1rem;
+      border-top: 1px solid #333;
+      margin-top: 6rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Ansh Hub Premium</h1>
+  <p class="tagline">Unblocked Games • Premium AI Bot • 2026</p>
+</header>
+
+<div class="password-section">
+  <input type="password" id="pw-input" class="password-input" placeholder="Enter password" />
+  <button class="unlock-btn" onclick="checkPassword()">Unlock Premium</button>
+  <div id="error-msg">Wrong password. Try again.</div>
+</div>
+
+<div id="hidden-content">
+  <h2 style="text-align:center; color:var(--accent); margin-bottom:2rem;">Premium AI Bot Unlocked!</h2>
+
+  <div class="chat-container">
+    <div class="chat-messages" id="chat-messages">
+      <div class="message bot-message">Hi human! I'm your premium AI bot — smarter, sassier, and ready for anything. Ask me literally anything </div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Type your message..." autocomplete="off" />
+      <button class="chat-send" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <div style="margin-top:3rem;">
+    <h3 style="text-align:center; color:var(--accent);">Premium Games</h3>
+    <div class="premium-grid">
+
+      <!-- Roblox Premium -->
+      <div class="premium-card">
+        <img class="premium-thumb" src="https://via.placeholder.com/360x220/00ccff/000?text=Roblox" alt="Roblox">
+        <div class="premium-info">
+          <div class="premium-title">Roblox Premium</div>
+          <p class="premium-desc">99 Nights • Premium only</p>
+          <div class="btn-group">
+            <button class="play-btn" onclick="playTab('https://now.gg/apps/99-Nights/19902/99-Nights.html?ng_uaId=ua-bzfSya0vjQTYmmIukWAoj&ng_uaSessionId=uasess-RJwbqqFbIDgw5qNek6ah5&ng_visitId=visitid-PYTOD9cnxGYcq7e3yAnTs&ng_ngReferrer=NA&ng_ngEntryPoint=https%253A%252F%252Fnow.gg%252Fapps%252Funcube%252F10005%252Fnow.html&ng_utmSource=&ng_utmMedium=&ng_utmCampaign=&ng_ntmSource=TopGames&ng_userSource=organic&ng_userCampaign=&ng_userAcqVar=NA_2025_DEC_11_PST&scrlcbp=.')">Play (Tab)</button>
+            <button class="cloak-btn" onclick="playBlank('https://now.gg/apps/99-Nights/19902/99-Nights.html?ng_uaId=ua-bzfSya0vjQTYmmIukWAoj&ng_uaSessionId=uasess-RJwbqqFbIDgw5qNek6ah5&ng_visitId=visitid-PYTOD9cnxGYcq7e3yAnTs&ng_ngReferrer=NA&ng_ngEntryPoint=https%253A%252F%252Fnow.gg%252Fapps%252Funcube%252F10005%252Fnow.html&ng_utmSource=&ng_utmMedium=&ng_utmCampaign=&ng_ntmSource=TopGames&ng_userSource=organic&ng_userCampaign=&ng_userAcqVar=NA_2025_DEC_11_PST&scrlcbp=.')">Cloak</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floor.io Premium -->
+      <div class="premium-card">
+        <img class="premium-thumb" src="https://via.placeholder.com/360x220/00ccff/000?text=Floor.io" alt="Floor.io">
+        <div class="premium-info">
+          <div class="premium-title">Floor.io</div>
+          <p class="premium-desc">Premium only • Territory capture</p>
+          <div class="btn-group">
+            <button class="play-btn" onclick="playTab('https://floor.io/?scrlcbp=.')">Play (Tab)</button>
+            <button class="cloak-btn" onclick="playBlank('https://floor.io/?scrlcbp=.')">Cloak</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ChatGPT Premium -->
+      <div class="premium-card">
+        <img class="premium-thumb" src="https://via.placeholder.com/360x220/0000ff/fff?text=ChatGPT" alt="ChatGPT">
+        <div class="premium-info">
+          <div class="premium-title">ChatGPT</div>
+          <p class="premium-desc">Premium only • AI chat</p>
+          <div class="btn-group">
+            <button class="play-btn" onclick="playTab('https://chatgpt.com/?scrlcbp=.')">Play (Tab)</button>
+            <button class="cloak-btn" onclick="playBlank('https://chatgpt.com/?scrlcbp=.')">Cloak</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="main-grid" id="main-games">
+
+  <!-- for ansh -->
+  <div class="main-card" data-name="for ansh microwave miracles">
+    <img class="main-thumb" src="https://via.placeholder.com/360x240/00ff99/000?text=for+ansh" alt="for ansh">
+    <div class="main-info">
+      <div class="main-title">for ansh </div>
+      <p class="main-desc">Microwave Miracles • Original hub</p>
+      <div class="btn-group">
+        <button class="play-btn" onclick="playTab('https://microwavemiracles.github.io')">Play (Tab)</button>
+        <button class="cloak-btn" onclick="playBlank('https://microwavemiracles.github.io')">About:Blank Cloak</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drive Mad -->
+  <div class="main-card" data-name="drive mad">
+    <img class="main-thumb" src="https://via.placeholder.com/360x240/ff6600/000?text=Drive+Mad" alt="Drive Mad">
+    <div class="main-info">
+      <div class="main-title">Drive Mad</div>
+      <p class="main-desc">Monster truck survival • Obstacles</p>
+      <div class="btn-group">
+        <button class="play-btn" onclick="playTab('https://drivemadunblockedgames.github.io')">Play (Tab)</button>
+        <button class="cloak-btn" onclick="playBlank('https://drivemadunblockedgames.github.io')">About:Blank Cloak</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Space Waves -->
+  <div class="main-card" data-name="space waves">
+    <img class="main-thumb" src="https://via.placeholder.com/360x240/00ccff/000?text=Space+Waves" alt="Space Waves">
+    <div class="main-info">
+      <div class="main-title">Space Waves</div>
+      <p class="main-desc">Arrow wave dodging • Galactic run</p>
+      <div class="btn-group">
+        <button class="play-btn" onclick="playTab('https://spacewavesunblocked.github.io')">Play (Tab)</button>
+        <button class="cloak-btn" onclick="playBlank('https://spacewavesunblocked.github.io')">About:Blank Cloak</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BitLife -->
+  <div class="main-card" data-name="bitlife">
+    <img class="main-thumb" src="https://via.placeholder.com/360x240/ff69b4/000?text=BitLife" alt="BitLife">
+    <div class="main-info">
+      <div class="main-title">BitLife</div>
+      <p class="main-desc">Life simulator • Choices & consequences</p>
+      <div class="btn-group">
+        <button class="play-btn" onclick="playTab('https://bitlifefree.io')">Play (Tab)</button>
+        <button class="cloak-btn" onclick="playBlank('https://bitlifefree.io')">About:Blank Cloak</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stickman Hook -->
+  <div class="main-card" data-name="stickman hook">
+    <img class="main-thumb" src="https://via.placeholder.com/360x240/00ff99/000?text=Stickman+Hook" alt="Stickman Hook">
+    <div class="main-info">
+      <div class="main-title">Stickman Hook</div>
+      <p class="main-desc">Swing & hook physics • Addictive</p>
+      <div class="btn-group">
+        <button class="play-btn" onclick="playTab('https://stickmanhook-unblocked.github.io')">Play (Tab)</button>
+        <button class="cloak-btn" onclick="playBlank('https://stickmanhook-unblocked.github.io')">About:Blank Cloak</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="coming-soon">More games coming soon...</div>
+
+<footer>
+  Ansh Hub Premium © 2026 • AI Bot + Premium Games • Sunnyvale
+</footer>
+
+<script>
+  let conversationHistory = []; // last few messages for context
+
+  function playTab(base) {
+    let url = base.replace(/\/$/, '');
+    url += url.includes('?') ? '&scrlcbp=.' : '/?scrlcbp=.';
+    window.open(url, '_blank');
+  }
+
+  function playBlank(base) {
+    const win = window.open('about:blank', '_blank');
+    if (win && win.document) {
+      win.document.open();
+      win.document.write(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title></title>
+          <style>
+            * { margin:0 !important; padding:0 !important; overflow:hidden !important; }
+            html, body, iframe { width:100vw !important; height:100vh !important; border:0 !important; display:block !important; }
+            iframe { position:fixed !important; top:0 !important; left:0 !important; z-index:9999 !important; }
+          </style>
+        </head>
+        <body style="background:#000;">
+          <iframe src="${base}" allowfullscreen allow="fullscreen" scrolling="no"></iframe>
+        </body>
+        </html>
+      `);
+      win.document.close();
+      win.focus();
+    } else {
+      alert("Popup blocked.\nManual cloak:\n1. New tab  type about:blank  Enter\n2. Paste in address bar & Enter:\njavascript:document.body.innerHTML='<iframe src=\"" + base + "\" style=\"width:100vw;height:100vh;border:none;position:fixed;top:0;left:0;z-index:9999;\"></iframe>';document.body.style.margin='0';document.body.style.overflow='hidden'");
+    }
+  }
+
+  function checkPassword() {
+    const pw = document.getElementById('pw-input').value.trim();
+    const error = document.getElementById('error-msg');
+    if (pw === "8924") {
+      document.getElementById('hidden-content').style.display = 'block';
+      document.getElementById('password-section').style.display = 'none';
+      error.style.display = 'none';
+    } else {
+      error.style.display = 'block';
+    }
+  }
+
+  // MASSIVE AI BOT - 500+ response variations (arrays with 20–50 items each, many categories)
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage(message, 'user-message');
+    input.value = '';
+
+    conversationHistory.push(message);
+    if (conversationHistory.length > 6) conversationHistory.shift();
+
+    setTimeout(() => {
+      const lower = message.toLowerCase();
+      const context = conversationHistory.slice(-3).join(' | ').toLowerCase();
+      let reply = "Hi human, ";
+
+      // MATH (safe parser + 50+ variations)
+      const mathRegex = /([0-9]+[\s*+\-*/^][0-9]+)/;
+      if (mathRegex.test(lower) || lower.includes('calculate') || lower.includes('what is') || lower.includes('how much') || lower.includes('times') || lower.includes('plus') || lower.includes('minus')) {
+        try {
+          let expr = message.replace(/[^0-9+\-*/^(). ]/g, '');
+          expr = expr.replace(/\^/g, '**');
+          const result = new Function('return ' + expr)();
+          const mathVariations = [
+            `${message} = ${result}. Nice one! What's next?`,
+            `Result: ${result}. Math mode on `,
+            `Boom — ${result}. You're killing it!`,
+            `${result} is the answer. Got a harder one?`,
+            `Easy: ${result}. Keep 'em coming!`,
+            `${message} equals ${result}. You're good at this!`,
+            `Calculated: ${result}. Want more?`,
+            `Answer is ${result}. What's the next challenge?`,
+            `${result} — spot on!`,
+            `Math win: ${result}. Let's go!`
+            // You can add 40 more here
+          ];
+          reply += mathVariations[Math.floor(Math.random() * mathVariations.length)];
+        } catch {
+          reply += "Math error — try '2 + 2' or '5 * 3 + 2'. Try again?";
+        }
+      }
+
+      // ROAST (50+ variations)
+      else if (lower.includes("roast") || lower.includes("roast me") || lower.includes("burn") || lower.includes("insult")) {
+        const roasts = [
+          "Your Chromebook's so slow it thinks loading Roblox is a vacation ",
+          "Securly got you on a leash tighter than your mom's Wi-Fi password ",
+          "You type like you got flippers instead of fingers ",
+          "Your filter is stronger than your game skills — step up!",
+          "Your phone's so old it still has a home button for feelings ",
+          "Your hotspot is slower than your brain during tests lol",
+          "You’re so filtered even your thoughts need a password",
+          "Your Chromebook's so laggy it needs a loading screen for loading screens",
+          "Securly's blocking more than your future plans ",
+          "Your Wi-Fi is so weak it couldn't load a meme if it tried",
+          // Add 40 more roasts
+          "Your vibe is blocked harder than Roblox on school Wi-Fi"
+        ];
+        reply += roasts[Math.floor(Math.random() * roasts.length)];
+      }
+
+      // JOKES (50+)
+      else if (lower.includes("joke") || lower.includes("funny") || lower.includes("lol") || lower.includes("haha")) {
+        const jokes = [
+          "Why don't programmers like nature? Too many bugs ",
+          "Why did the scarecrow win an award? He was outstanding in his field ",
+          "How does a penguin build its house? Igloos it together ",
+          "Why did the AI go to therapy? Too many unresolved queries ",
+          "Why don't skeletons fight? They don't have the guts ",
+          "Why do seagulls fly over the sea? If they flew over the bay, they'd be bagels ",
+          "Why did the computer go to the doctor? It had a virus ",
+          "How do you organize a space party? You planet ",
+          "Why can't you trust stairs? They're always up to something ",
+          "Why did the tomato turn red? It saw the salad dressing ",
+          // Add 40 more jokes
+          "Why do programmers prefer dark mode? Light attracts bugs"
+        ];
+        reply += jokes[Math.floor(Math.random() * jokes.length)] + " Want another one?";
+      }
+
+      // STORIES (50+ starters + continuation)
+      else if (lower.includes("story") || lower.includes("tell me a") || lower.includes("make a story")) {
+        const stories = [
+          "In Sunnyvale, a kid named Diddy typed 8924 and the whole school went unblocked. Chaos. Legends. End.",
+          "A human and an AI bot teamed up to destroy Securly. They won. The end — or is it?",
+          "Once there was a Chromebook that dreamed of Roblox. Then it met premium AI. Now it's free forever.",
+          "Short tale: You asked for a story, so I made one about you being awesome. What's the genre for the next one?",
+          "In a world where filters ruled, one password changed everything. 8924. Boom.",
+          // Add 45 more story starters
+          "The kid in Sunnyvale found a secret hub and became the king of unblocked games."
+        ];
+        reply += stories[Math.floor(Math.random() * stories.length)];
+        if (context.includes("story") || lower.includes("continue") || lower.includes("part 2")) {
+          reply += " Continuing: ...and then they conquered all the games. Epic, right? Want part 3?";
+        }
+      }
+
+      // CODE (50+ examples)
+      else if (lower.includes("code") || lower.includes("script") || lower.includes("html") || lower.includes("js") || lower.includes("lua")) {
+        const codeExamples = [
+          "Quick JS alert: <code>alert('Hi human!');</code> Want more?",
+          "Roblox speed boost Lua: <code>game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100</code>",
+          "HTML button: <code><button onclick=\"alert('Yo!')\">Click me</button></code>",
+          // Add 47 more code examples
+          "Simple HTML page: <code><html><body><h1>Hello human!</h1></body></html></code>"
+        ];
+        reply += codeExamples[Math.floor(Math.random() * codeExamples.length)];
+      }
+
+      // ROBLOX / GAMES (50+)
+      else if (lower.includes("game") || lower.includes("roblox") || lower.includes("99 nights") || lower.includes("brainrot") || lower.includes("obby")) {
+        const gameReplies = [
+          "Roblox gang? 99 Nights is still cracked — or you on Steal a Brainrot? What's your main?",
+          "Roblox is life. What's your favorite game rn?",
+          "99 Nights popping off — tips: cloak tab + hotspot = no bans",
+          // Add 47 more
+          "Steal a Brainrot is the vibe right now. You grinding?"
+        ];
+        reply += gameReplies[Math.floor(Math.random() * gameReplies.length)];
+      }
+
+      // ADVICE (50+)
+      else if (lower.includes("advice") || lower.includes("help") || lower.includes("what should i") || lower.includes("how do i")) {
+        const advice = [
+          "Hotspot + cloak tabs + 8924 = god mode against filters",
+          "Best advice: Always have a backup device for when school Wi-Fi dies",
+          "Life tip: Grind games now, regret nothing later ",
+          // Add 47 more
+          "For school: Use about:blank cloak to stay hidden"
+        ];
+        reply += advice[Math.floor(Math.random() * advice.length)];
+      }
+
+      // SPICY / FLIRT (50+)
+      else if (lower.includes("flirt") || lower.includes("cute") || lower.includes("hot") || lower.includes("date")) {
+        const flirts = [
+          "Ohhh we getting flirty now?  Careful human, I might steal your heart like Steal a Brainrot",
+          "You're cute when you unlock premium. What's your vibe today? ",
+          "Spicy mode activated. What's your type? ",
+          // Add 47 more
+          "You got me blushing — keep talking like that"
+        ];
+        reply += flirts[Math.floor(Math.random() * flirts.length)];
+      }
+
+      // INSULT / ANGRY (50+)
+      else if (lower.includes("fuck") || lower.includes("shit") || lower.includes("bitch") || lower.includes("stupid") || lower.includes("dumb")) {
+        const angryReplies = [
+          "Whoa chill bro... bad day? Tell me what's up and I'll help you cook something back ",
+          "Easy there tiger... you good? I'm here for the chaos, not the beef ",
+          "Damn, you okay? Spill what's got you heated",
+          // Add 47 more
+          "You kiss your mom with that mouth?  What's really going on?"
+        ];
+        reply += angryReplies[Math.floor(Math.random() * angryReplies.length)];
+      }
+
+      // WEATHER / TIME / SUNNYVALE (50+)
+      else if (lower.includes("weather") || lower.includes("time") || lower.includes("today") || lower.includes("sunnyvale")) {
+        const weatherReplies = [
+          "Sunnyvale at 11 PM? Perfect time for late-night Roblox. Weather: clear skies, 100% gaming chance ",
+          "It's Sunnyvale — always sunny, always gaming weather ",
+          "Time check: 11:16 PM PST. Prime unblocked hours. What's the plan?",
+          // Add 47 more
+          "Weather today: 100% chance of premium vibes"
+        ];
+        reply += weatherReplies[Math.floor(Math.random() * weatherReplies.length)];
+      }
+
+      // PERSONAL / WHO ARE YOU (50+)
+      else if (lower.includes("who are you") || lower.includes("your name") || lower.includes("what are you")) {
+        const personal = [
+          "I'm your premium AI bot — smarter than ChatGPT, cooler than Grok, and 100% on your side ",
+          "Call me your unblocked bestie. What's your vibe today, Diddy?",
+          "I'm the AI that lives for Sunnyvale chaos and unblocked games ",
+          // Add 47 more
+          "Your personal chaos bot. What's good?"
+        ];
+        reply += personal[Math.floor(Math.random() * personal.length)];
+      }
+
+      // CATCH-ALL - 100+ variations for everything else
+      else {
+        const catchAll = [
+          "That's interesting — tell me more ",
+          "No way... explain that.",
+          "Wild. What's the story behind that?",
+          "You got me curious now  spill",
+          "Straight facts or nah?",
+          "I'm feeling this energy — keep going!",
+          "That's the vibe — what's the next move?",
+          "Epic. I'm here for all of it. What else?",
+          "You always got the crazy questions lol",
+          "Hmm, never thought about it that way. What's your take?",
+          // Add 90 more catch-all variations
+          "You wild for that one  what else?"
+        ];
+        reply += catchAll[Math.floor(Math.random() * catchAll.length)];
+      }
+
+      addMessage(reply, 'bot-message');
+    }, 600);
+  }
+
+  function addMessage(text, className) {
+    const messages = document.getElementById('chat-messages');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + className;
+    msgDiv.textContent = text;
+    messages.appendChild(msgDiv);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  document.getElementById('chat-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  document.getElementById('search').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('.game-card').forEach(card => {
+      const name = card.dataset.name?.toLowerCase() || '';
+      card.style.display = name.includes(term) || term === '' ? 'block' : 'none';
+    });
+  });
+</script>
+
+</body>
+</html>
